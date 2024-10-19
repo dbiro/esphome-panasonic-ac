@@ -29,6 +29,12 @@ wifi:
 #############################
 ## Panasonic AC controller ##
 #############################
+external_components:
+  source:
+    type: local
+    path: components
+  components: [panasonic_ac]
+
 uart:
   rx_pin: GPIO18
   tx_pin: GPIO19
@@ -36,11 +42,16 @@ uart:
   parity: EVEN
   stop_bits: 1
 
-external_components:
-  source:
-    type: local
-    path: components
-  components: [panasonic_ac]
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+
+sensor:
+  - platform: total_daily_energy
+    name: Daily Energy Usage
+    power_id: current_power_consumption
+    unit_of_measurement: "kWh"
+    accuracy_decimals: 2
 
 climate:
   - platform: panasonic_ac
@@ -61,4 +72,10 @@ climate:
       current_power_consumption:
         supported: true
         sensor:
-          name: Power Consumption
+            id: current_power_consumption
+            name: Power Consumption
+            unit_of_measurement: "kW"
+            accuracy_decimals: 2
+            filters:
+              # Multiplication factor from W to kW is 0.001
+              - multiply: 0.001
