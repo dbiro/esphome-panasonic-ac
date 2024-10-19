@@ -27,6 +27,7 @@ class PanasonicAC : public Component, public uart::UARTDevice, public climate::C
   void set_horizontal_swing_select(select::Select *horizontal_swing_select);
   void set_nanoex_switch(switch_::Switch *nanoex_switch);
   void set_outside_temperature_sensor(sensor::Sensor *outside_temperature_sensor);
+  void set_current_temperature_sensor(sensor::Sensor *current_temperature_sensor);
   void set_current_power_consumption_sensor(sensor::Sensor *current_power_consumption_sensor);
 
   void setup() override;
@@ -39,19 +40,16 @@ class PanasonicAC : public Component, public uart::UARTDevice, public climate::C
   
   sensor::Sensor *current_power_consumption_sensor_ = nullptr;  // Sensor to store current power consumption from queries
   sensor::Sensor *outside_temperature_sensor_ = nullptr;        // Sensor to store outside temperature from queries
+  sensor::Sensor *current_temperature_sensor_ = nullptr;
 
   std::string vertical_swing_state_;
   std::string horizontal_swing_state_;
   bool nanoex_state_ = false;    // Stores the state of nanoex to prevent duplicate packets
-  
-
   bool waiting_for_response_ = false;  // Set to true if we are waiting for a response
-
+  
   // uint8_t receive_buffer_index = 0;     // Current position of the receive buffer
   // uint8_t receive_buffer[BUFFER_SIZE];  // Stores the packet currently being received
-
   std::vector<uint8_t> rx_buffer_;
-
   uint32_t init_time_;             // Stores the current time
   uint32_t last_read_;             // Stores the time at which the last read was done
   uint32_t last_packet_sent_;      // Stores the time at which the last packet was sent

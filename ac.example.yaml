@@ -67,6 +67,10 @@ climate:
         supported: true
         switch:
           name: NanoeX
+      current_temperature:
+        supported: true
+        sensor:
+          name: Current Temperature
       outside_temperature:
         supported: false
       current_power_consumption:

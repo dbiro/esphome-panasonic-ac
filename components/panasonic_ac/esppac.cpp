@@ -56,6 +56,9 @@ void PanasonicAC::update_current_temperature(int8_t temperature) {
   }
 
   this->current_temperature = temperature;
+
+  if (this->current_temperature_sensor_ != nullptr && this->current_temperature_sensor_->state != temperature)
+    this->current_temperature_sensor_->publish_state(temperature);
 }
 
 void PanasonicAC::update_target_temperature(uint8_t raw_value) {
@@ -122,6 +125,10 @@ void PanasonicAC::update_current_power_consumption(int16_t power) {
 
 void PanasonicAC::set_outside_temperature_sensor(sensor::Sensor *outside_temperature_sensor) {
   this->outside_temperature_sensor_ = outside_temperature_sensor;
+}
+
+void PanasonicAC::set_current_temperature_sensor(sensor::Sensor *current_temperature_sensor) {
+  this->current_temperature_sensor_ = current_temperature_sensor;
 }
 
 void PanasonicAC::set_vertical_swing_select(select::Select *vertical_swing_select) {

@@ -38,6 +38,7 @@ CONF_SENSOR = "sensor"
 CONF_HORIZONTAL_SWING_MODE = "horizontal_swing_mode"
 CONF_VERTICAL_SWING_MODE = "vertical_swing_mode"
 CONF_NANOEX_MODE = "nanoex_mode"
+CONF_CURRENT_TEMPERATURE = "current_temperature"
 CONF_OUTSIDE_TEMPERATURE = "outside_temperature"
 CONF_CURRENT_POWER_CONSUMPTION = "current_power_consumption"
 
@@ -114,6 +115,16 @@ OUTSIDE_TEMPERATURE_SCHEMA = cv.Schema({
     )
 }).add_extra(_validate_sensor_schema)
 
+CURRENT_TEMPERATURE_SCHEMA = cv.Schema({
+    cv.Required(CONF_SUPPORTED): cv.boolean,
+    cv.Optional(CONF_SENSOR): sensor.sensor_schema(
+        unit_of_measurement=UNIT_CELSIUS,
+        accuracy_decimals=0,
+        device_class=DEVICE_CLASS_TEMPERATURE,
+        state_class=STATE_CLASS_MEASUREMENT
+    )
+}).add_extra(_validate_sensor_schema)
+
 CURRENT_POWER_CONSUMPTION_SCHEMA = cv.Schema({
     cv.Required(CONF_SUPPORTED): cv.boolean,
     cv.Optional(CONF_SENSOR): sensor.sensor_schema(
@@ -129,6 +140,7 @@ TRAITS_SCHEMA = cv.Schema({
     cv.Required(CONF_HORIZONTAL_SWING_MODE): HORIZONTAL_SWING_MODE_SCHEMA,
     cv.Required(CONF_NANOEX_MODE): NANOEX_MODE_SCHEMA,
     cv.Required(CONF_OUTSIDE_TEMPERATURE): OUTSIDE_TEMPERATURE_SCHEMA,
+    cv.Required(CONF_CURRENT_TEMPERATURE): CURRENT_TEMPERATURE_SCHEMA,
     cv.Required(CONF_CURRENT_POWER_CONSUMPTION): CURRENT_POWER_CONSUMPTION_SCHEMA
 })
 
@@ -179,6 +191,12 @@ async def setup_outside_temperature_sensor(panasonic_ac, traits_config):
         outside_temp_sensor = await sensor.new_sensor(outside_temp_config[CONF_SENSOR])
         cg.add(panasonic_ac.set_outside_temperature_sensor(outside_temp_sensor))
 
+async def setup_current_temperature_sensor(panasonic_ac, traits_config):
+    current_temp_config = traits_config[CONF_CURRENT_TEMPERATURE]
+    if cv.boolean(current_temp_config[CONF_SUPPORTED]):
+        current_temp_sensor = await sensor.new_sensor(current_temp_config[CONF_SENSOR])
+        cg.add(panasonic_ac.set_current_temperature_sensor(current_temp_sensor))
+
 async def setup_current_power_consumption_sensor_(panasonic_ac, traits_config):
     consumption_config = traits_config[CONF_CURRENT_POWER_CONSUMPTION]
     if cv.boolean(consumption_config[CONF_SUPPORTED]):
@@ -190,6 +208,7 @@ async def setup_traits_(panasonic_ac, traits_config):
     await setup_vertical_swing_mode_(panasonic_ac, traits_config)
     await setup_nanoex_mode_(panasonic_ac, traits_config)
     await setup_outside_temperature_sensor(panasonic_ac, traits_config)
+    await setup_current_temperature_sensor(panasonic_ac, traits_config)
     await setup_current_power_consumption_sensor_(panasonic_ac, traits_config)
 
 async def to_code(config):
@@ -198,6 +217,6 @@ async def to_code(config):
     await cg.register_component(panasonic_ac, config)
     await climate.register_climate(panasonic_ac, config)
     await uart.register_uart_device(panasonic_ac, config)
-    
-    setup_default_icon_(panasonic_ac, config, "mdi:air-conditioner")
     await setup_traits_(panasonic_ac, config[CONF_TRAITS])
+
+    setup_default_icon_(panasonic_ac, config, "mdi:air-conditioner")
