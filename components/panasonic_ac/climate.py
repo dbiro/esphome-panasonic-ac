@@ -45,9 +45,9 @@ CONF_CURRENT_POWER_CONSUMPTION = "current_power_consumption"
 HORIZONTAL_SWING_OPTIONS = [
     "auto",
     "left",
-    "half-left",
+    "left_center",
     "center",
-    "half-right",
+    "right_center",
     "right"
 ]
 
@@ -56,9 +56,9 @@ VERTICAL_SWING_OPTIONS = [
     "swing",
     "auto",
     "up",
-    "half-up",
+    "up_center",
     "center",
-    "half-down",
+    "down_center",
     "down"
 ]
 
