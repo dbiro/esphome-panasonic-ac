@@ -45,9 +45,9 @@ CONF_CURRENT_POWER_CONSUMPTION = "current_power_consumption"
 HORIZONTAL_SWING_OPTIONS = [
     "auto",
     "left",
-    "left_center",
+    "half-left",
     "center",
-    "right_center",
+    "half-right",
     "right"
 ]
 
@@ -56,18 +56,15 @@ VERTICAL_SWING_OPTIONS = [
     "swing",
     "auto",
     "up",
-    "up_center",
+    "half-up",
     "center",
-    "down_center",
+    "half-down",
     "down"
 ]
 
-SWITCH_SCHEMA = switch.SWITCH_SCHEMA.extend(cv.COMPONENT_SCHEMA).extend(
-    {cv.GenerateID(): cv.declare_id(PanasonicACSwitch)}
-)
-SELECT_SCHEMA = select.SELECT_SCHEMA.extend(
-    {cv.GenerateID(CONF_ID): cv.declare_id(PanasonicACSelect)}
-)
+SWITCH_SCHEMA = switch.switch_schema(PanasonicACSwitch).extend(cv.COMPONENT_SCHEMA)
+
+SELECT_SCHEMA = select.select_schema(PanasonicACSelect)
 
 def _validate_selector_schema(config):
     if cv.boolean(config[CONF_SUPPORTED]) and CONF_SELECTOR not in config:
@@ -144,9 +141,8 @@ TRAITS_SCHEMA = cv.Schema({
     cv.Required(CONF_CURRENT_POWER_CONSUMPTION): CURRENT_POWER_CONSUMPTION_SCHEMA
 })
 
-CONFIG_SCHEMA = climate.CLIMATE_SCHEMA.extend(
+CONFIG_SCHEMA = climate.climate_schema(PanasonicACCNT).extend(
     {
-        cv.GenerateID(): cv.declare_id(PanasonicACCNT),
         cv.Required(CONF_TRAITS): TRAITS_SCHEMA
     }
 ).extend(uart.UART_DEVICE_SCHEMA)

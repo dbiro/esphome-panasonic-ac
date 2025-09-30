@@ -1,6 +1,7 @@
 esphome:
   name: my-panasonic-ac
   friendly_name: My Panasonic AC
+  min_version: 2025.9.2
 
 esp32:
   board: esp32-c3-devkitm-1
