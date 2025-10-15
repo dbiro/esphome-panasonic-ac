@@ -1,15 +1,16 @@
 esphome:
   name: my-panasonic-ac
   friendly_name: My Panasonic AC
-  min_version: 2025.9.2
+  min_version: 2025.9.3
 
 esp32:
   board: esp32-c3-devkitm-1
   framework:
-    type: arduino
+    type: esp-idf
 
 # Enable logging
 logger:
+  hardware_uart: UART0 # ESP32-C3 uses USB_SERIAL_JTAG (pins 18/19) by default, thus UART0 should be used for logging
   level: VERY_VERBOSE
   logs:
     api.service: DEBUG
