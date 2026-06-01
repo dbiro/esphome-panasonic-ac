@@ -1,0 +1,3 @@
+source ./build.env
+
+podman run -v "${PWD}":"/config" --rm ghcr.io/esphome/esphome:${ESPHOME_VERSION?} compile ac.example.yaml
