@@ -1,7 +1,6 @@
 from esphome.const import (
     CONF_ID,
     CONF_NAME,
-    CONF_ICON,
     DEVICE_CLASS_TEMPERATURE,
     DEVICE_CLASS_POWER,
     STATE_CLASS_MEASUREMENT,
@@ -62,9 +61,17 @@ VERTICAL_SWING_OPTIONS = [
     "down"
 ]
 
-SWITCH_SCHEMA = switch.switch_schema(PanasonicACSwitch).extend(cv.COMPONENT_SCHEMA)
+SWITCH_SCHEMA = switch.switch_schema(
+    PanasonicACSwitch, icon="mdi:air-filter"
+).extend(cv.COMPONENT_SCHEMA)
 
-SELECT_SCHEMA = select.select_schema(PanasonicACSelect)
+HORIZONTAL_SWING_SELECT_SCHEMA = select.select_schema(
+    PanasonicACSelect, icon="mdi:arrow-left-right"
+)
+
+VERTICAL_SWING_SELECT_SCHEMA = select.select_schema(
+    PanasonicACSelect, icon="mdi:arrow-up-down"
+)
 
 def _validate_selector_schema(config):
     if cv.boolean(config[CONF_SUPPORTED]) and CONF_SELECTOR not in config:
@@ -74,14 +81,14 @@ def _validate_selector_schema(config):
 HORIZONTAL_SWING_MODE_SCHEMA = cv.Schema(
     {
         cv.Required(CONF_SUPPORTED): cv.boolean,
-        cv.Optional(CONF_SELECTOR): SELECT_SCHEMA
+        cv.Optional(CONF_SELECTOR): HORIZONTAL_SWING_SELECT_SCHEMA
     }
 ).add_extra(_validate_selector_schema)
 
 VERTICAL_SWING_MODE_SCHEMA = cv.Schema(
     {
         cv.Required(CONF_SUPPORTED): cv.boolean,
-        cv.Optional(CONF_SELECTOR): SELECT_SCHEMA
+        cv.Optional(CONF_SELECTOR): VERTICAL_SWING_SELECT_SCHEMA
     }
 ).add_extra(_validate_selector_schema)
 
@@ -141,34 +148,31 @@ TRAITS_SCHEMA = cv.Schema({
     cv.Required(CONF_CURRENT_POWER_CONSUMPTION): CURRENT_POWER_CONSUMPTION_SCHEMA
 })
 
-CONFIG_SCHEMA = climate.climate_schema(PanasonicACCNT).extend(
+CONFIG_SCHEMA = climate.climate_schema(
+    PanasonicACCNT, icon="mdi:air-conditioner"
+).extend(
     {
         cv.Required(CONF_TRAITS): TRAITS_SCHEMA
     }
 ).extend(uart.UART_DEVICE_SCHEMA)
 
-def setup_default_icon_(var, config, default_icon):
-    if CONF_ICON not in config:
-        cg.add(var.set_icon(default_icon))
-
-async def setup_swing_mode_(swing_mode_config, swing_selector_default_icon, swing_selector_options):
+async def setup_swing_mode_(swing_mode_config, swing_selector_options):
     swing_selector_config = swing_mode_config[CONF_SELECTOR]
     swing_selector = await select.new_select(swing_selector_config, options=swing_selector_options)
     await cg.register_component(swing_selector, swing_selector_config)
-    setup_default_icon_(swing_selector, swing_selector_config, swing_selector_default_icon)
     return swing_selector
 
 async def setup_horizontal_swing_mode_(panasonic_ac, traits_config):
     horizontal_swing_mode_config = traits_config[CONF_HORIZONTAL_SWING_MODE]
     if cv.boolean(horizontal_swing_mode_config[CONF_SUPPORTED]):
-        horizontal_swing_selector = await setup_swing_mode_(horizontal_swing_mode_config, "mdi:arrow-left-right", HORIZONTAL_SWING_OPTIONS)
+        horizontal_swing_selector = await setup_swing_mode_(horizontal_swing_mode_config, HORIZONTAL_SWING_OPTIONS)
         cg.add(panasonic_ac.get_traits_builder().add_horizontal_swing_mode())
         cg.add(panasonic_ac.set_horizontal_swing_select(horizontal_swing_selector))
 
 async def setup_vertical_swing_mode_(panasonic_ac, traits_config):
     vertical_swing_mode_config = traits_config[CONF_VERTICAL_SWING_MODE]
     if cv.boolean(vertical_swing_mode_config[CONF_SUPPORTED]):
-        vertical_swing_selector = await setup_swing_mode_(vertical_swing_mode_config, "mdi:arrow-up-down", VERTICAL_SWING_OPTIONS)
+        vertical_swing_selector = await setup_swing_mode_(vertical_swing_mode_config, VERTICAL_SWING_OPTIONS)
         cg.add(panasonic_ac.get_traits_builder().add_vertical_swing_mode())
         cg.add(panasonic_ac.set_vertical_swing_select(vertical_swing_selector))
 
@@ -178,7 +182,6 @@ async def setup_nanoex_mode_(panasonic_ac, traits_config):
         nanoex_switch_config = nanoex_mode_config[CONF_SWITCH]
         nanoex_switch = await switch.new_switch(nanoex_switch_config)
         await cg.register_component(nanoex_switch, nanoex_switch_config)
-        setup_default_icon_(nanoex_switch, nanoex_switch_config, "mdi:air-filter")
         cg.add(panasonic_ac.set_nanoex_switch(nanoex_switch))
 
 async def setup_outside_temperature_sensor(panasonic_ac, traits_config):
@@ -214,5 +217,3 @@ async def to_code(config):
     await climate.register_climate(panasonic_ac, config)
     await uart.register_uart_device(panasonic_ac, config)
     await setup_traits_(panasonic_ac, config[CONF_TRAITS])
-
-    setup_default_icon_(panasonic_ac, config, "mdi:air-conditioner")

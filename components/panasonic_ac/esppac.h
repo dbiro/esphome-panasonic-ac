@@ -55,11 +55,10 @@ class PanasonicAC : public Component, public uart::UARTDevice, public climate::C
   uint32_t last_packet_sent_;      // Stores the time at which the last packet was sent
   uint32_t last_packet_received_;  // Stores the time at which the last packet was received
 
-  PanasonicACTraitsBuilder panasonic_ac_traits_builder_ = PanasonicACTraitsBuilder();
-  climate::ClimateTraits panasonic_ac_traits_;
+  PanasonicACTraitsBuilder panasonic_ac_traits_builder_{*this, *this};
 
   climate::ClimateTraits traits() override {
-    return panasonic_ac_traits_;
+    return panasonic_ac_traits_builder_.build_traits();
   }
 
   void read_data();

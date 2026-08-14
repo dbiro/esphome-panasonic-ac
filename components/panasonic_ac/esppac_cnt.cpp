@@ -85,16 +85,16 @@ void PanasonicACCNT::control(const climate::ClimateCall &call) {
     this->cmd[1] = *call.get_target_temperature() / TEMPERATURE_STEP;
   }
 
-  if (call.get_custom_fan_mode().has_value()) {
+  if (call.has_custom_fan_mode()) {
     ESP_LOGV(TAG, "Requested fan mode change");
 
-    if (this->custom_preset != PRESET_NONE)
+    if (this->get_custom_preset() != PRESET_NONE)
     {
       ESP_LOGV(TAG, "Resetting preset");
       this->cmd[5] = (this->cmd[5] & 0xF0);  // Clear right nib for none preset
     }
 
-    std::string fanMode = *call.get_custom_fan_mode();
+    StringRef fanMode = call.get_custom_fan_mode();
 
     if (fanMode == FAN_SPEED_LEVEL_AUTO)
       this->cmd[3] = 0xA0;
@@ -134,16 +134,16 @@ void PanasonicACCNT::control(const climate::ClimateCall &call) {
     }
   }
 
-  if (call.get_custom_preset().has_value()) {
+  if (call.has_custom_preset()) {
     ESP_LOGV(TAG, "Requested preset change");
 
-    std::string preset = *call.get_custom_preset();
+    StringRef preset = call.get_custom_preset();
 
-    if (preset.compare(PRESET_NONE) == 0)
+    if (preset == PRESET_NONE)
       this->cmd[5] = (this->cmd[5] & 0xF0);  // Clear right nib for none preset
-    else if (preset.compare(PRESET_POWERFUL) == 0)
+    else if (preset == PRESET_POWERFUL)
       this->cmd[5] = (this->cmd[5] & 0xF0) + 0x02;  // Clear right nib and set powerful mode
-    else if (preset.compare(PRESET_QUIET) == 0)
+    else if (preset == PRESET_QUIET)
       this->cmd[5] = (this->cmd[5] & 0xF0) + 0x04;  // Clear right nib and set quiet mode
     else
       ESP_LOGV(TAG, "Unsupported preset requested");
@@ -157,12 +157,12 @@ void PanasonicACCNT::control(const climate::ClimateCall &call) {
 void PanasonicACCNT::set_data(bool set) {
   this->mode = determine_mode(this->data[0]);
   this->action = PanasonicAC::determine_action();
-  this->custom_fan_mode = determine_fan_speed(this->data[3]);
+  this->set_custom_fan_mode_(determine_fan_speed(this->data[3]));
 
   std::string verticalSwing = determine_vertical_swing(this->data[4]);
   std::string horizontalSwing = determine_horizontal_swing(this->data[4]);
 
-  std::string preset = determine_preset(this->data[5]);
+  const char *preset = determine_preset(this->data[5]);
   bool nanoex = determine_preset_nanoex(this->data[5]);
   
   this->update_target_temperature((int8_t) this->data[1]);
@@ -205,7 +205,7 @@ void PanasonicACCNT::set_data(bool set) {
   this->update_swing_vertical(verticalSwing);
   this->update_swing_horizontal(horizontalSwing);
 
-  this->custom_preset = preset;
+  this->set_custom_preset_(preset);
 
   this->update_nanoex(nanoex);
 }
@@ -338,7 +338,7 @@ climate::ClimateMode PanasonicACCNT::determine_mode(uint8_t mode) {
   }
 }
 
-std::string PanasonicACCNT::determine_fan_speed(uint8_t speed) {
+const char *PanasonicACCNT::determine_fan_speed(uint8_t speed) {
   switch (speed) {
     case 0xA0:  // Auto
       return FAN_SPEED_LEVEL_AUTO;
@@ -408,7 +408,7 @@ std::string PanasonicACCNT::determine_horizontal_swing(uint8_t swing) {
   }
 }
 
-std::string PanasonicACCNT::determine_preset(uint8_t preset) {
+const char *PanasonicACCNT::determine_preset(uint8_t preset) {
   uint8_t nib = (preset >> 0) & 0x0F;  // Right nib for preset (powerful/quiet)
 
   switch (nib) {

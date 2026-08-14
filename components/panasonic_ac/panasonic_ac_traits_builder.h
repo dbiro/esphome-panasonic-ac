@@ -1,6 +1,8 @@
 #pragma once
 
+#include "esphome/components/climate/climate.h"
 #include "esphome/components/climate/climate_traits.h"
+#include "esphome/core/component.h"
 
 namespace esphome {
 namespace panasonic_ac {
@@ -11,25 +13,31 @@ static const float TEMPERATURE_STEP = 0.5;     // Steps the temperature can be s
 static const float TEMPERATURE_TOLERANCE = 2;  // The tolerance to allow when checking the climate state
 static const uint8_t TEMPERATURE_THRESHOLD = 100;  // Maximum temperature the AC can report before considering the temperature as invalid
 
-static const std::string FAN_SPEED_LEVEL_AUTO = "Auto "; // HACK: setting to "Auto" (without trailing space) won't work because it will be parsed as built-in CLIMATE_FAN_MODE_AUTO
-static const std::string FAN_SPEED_LEVEL_1 = "1";
-static const std::string FAN_SPEED_LEVEL_2 = "2";
-static const std::string FAN_SPEED_LEVEL_3 = "3";
-static const std::string FAN_SPEED_LEVEL_4 = "4";
-static const std::string FAN_SPEED_LEVEL_5 = "5";
+static constexpr const char *FAN_SPEED_LEVEL_AUTO = "Auto "; // HACK: setting to "Auto" (without trailing space) won't work because it will be parsed as built-in CLIMATE_FAN_MODE_AUTO
+static constexpr const char *FAN_SPEED_LEVEL_1 = "1";
+static constexpr const char *FAN_SPEED_LEVEL_2 = "2";
+static constexpr const char *FAN_SPEED_LEVEL_3 = "3";
+static constexpr const char *FAN_SPEED_LEVEL_4 = "4";
+static constexpr const char *FAN_SPEED_LEVEL_5 = "5";
 
-static const std::string PRESET_NONE = "None "; // HACK: setting to "None" (without trailing space) won't work because it will be parsed as built-in CLIMATE_PRESET_NONE
-static const std::string PRESET_QUIET = "Quiet";
-static const std::string PRESET_POWERFUL = "Powerful";
+static constexpr const char *PRESET_NONE = "None "; // HACK: setting to "None" (without trailing space) won't work because it will be parsed as built-in CLIMATE_PRESET_NONE
+static constexpr const char *PRESET_QUIET = "Quiet";
+static constexpr const char *PRESET_POWERFUL = "Powerful";
 
 class PanasonicACTraitsBuilder {
     public:
-        PanasonicACTraitsBuilder();
-        climate::ClimateTraits build_traits() const { return this->traits; };
+        PanasonicACTraitsBuilder(climate::Climate &climate_entity, Component &component);
+        // Builds the traits on first call, returns the cached result afterwards
+        const climate::ClimateTraits &build_traits();
         void add_horizontal_swing_mode();
         void add_vertical_swing_mode();
     private:
+        void populate_traits_();
+
+        climate::Climate &climate_;
+        Component &component_;  // Same object as climate_, used to fail the component on misuse
         climate::ClimateTraits traits = climate::ClimateTraits();
+        bool traits_built_ = false;
 };
 
 }
