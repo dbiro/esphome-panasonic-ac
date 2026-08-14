@@ -1,3 +1,5 @@
+[![build](https://github.com/dbiro/esphome-panasonic-ac/actions/workflows/ci.yml/badge.svg)](https://github.com/dbiro/esphome-panasonic-ac/actions/workflows/ci.yml)
+
 # Overview
 
 Custom [ESPHome External Component](https://esphome.io/components/external_components) for Panasonic AC-s using CN-CNT based protocol.
