@@ -1,4 +1,4 @@
-[![build](https://github.com/dbiro/esphome-panasonic-ac/actions/workflows/ci.yml/badge.svg)](https://github.com/dbiro/esphome-panasonic-ac/actions/workflows/ci.yml)
+[![build](https://github.com/dbiro/esphome-panasonic-ac/actions/workflows/build.yml/badge.svg)](https://github.com/dbiro/esphome-panasonic-ac/actions/workflows/build.yml)
 
 # Overview
 
