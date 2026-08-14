@@ -6,7 +6,7 @@
         {
             "label": "esphome compile",
             "type": "shell",
-            "command": "sh ./build.sh",
+            "command": "(source ./.esphomeversion && ./build.sh)",            
             "problemMatcher": [],
             "group": {
                 "kind": "build",
