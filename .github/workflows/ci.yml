@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  statuses: write
 
 jobs:
   esphome_compile:
@@ -15,17 +16,33 @@ jobs:
     steps:
       - name: checkout master branch
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          ref: master
-          
-      - name: setup docker ce
-        uses: docker/setup-docker-action@77e84dbf09b47d1e29270283c22f16145aa85ca1 # v5.4.0
-        with:
-          version: latest
-          channel: stable
-          rootless: true
+        
+      - name: create dummy secrets.yaml file
+        run: touch ./secrets.yaml && cp ./ac.example.secrets.yaml ./secrets.yaml
 
-      - name: compile component
-        run: (sudo chmod u+x ./build.sh && ./build.sh)
-      
+      - name: read .esphomeversion file
+        run: |
+          source ./.esphomeversion
+          echo "ESPHOME_VERSION=${ESPHOME_VERSION}" >> ${GITHUB_ENV}
+          echo "::notice::Built with ESPHome v$ESPHOME_VERSION"
+
+      - name: compile component        
+        id: compile_component_step
+        run: |
+          sudo chmod u+x ./build.sh
+          ./build.sh
+
+      - name: set commit status
+        if: ${{ always() && contains(fromJSON('["success", "failure"]'), steps.compile_component_step.conclusion) }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COMPILE_STATE: ${{ steps.compile_component_step.conclusion }}
+        run: |
+           gh api "/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
+            -H "Accept: application/vnd.github+json" \
+            --method POST \
+            -f state="${COMPILE_STATE}" \
+            -f context="build/esphomeversion" \
+            -f description="ESPHome v${ESPHOME_VERSION}" \
+            -f target_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"      
         

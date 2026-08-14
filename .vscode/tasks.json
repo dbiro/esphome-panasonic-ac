@@ -6,7 +6,10 @@
         {
             "label": "esphome compile",
             "type": "shell",
-            "command": "(source ./.esphomeversion && ./build.sh)",            
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "command": "cat <(cat ./.esphomeversion) <(echo '') ./build.sh | bash",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
