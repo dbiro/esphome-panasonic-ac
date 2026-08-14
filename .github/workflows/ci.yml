@@ -1,0 +1,32 @@
+name: run CI validation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  esphome_compile:
+    name: run esphome compile
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout master branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: master
+          
+      - name: setup docker ce
+        uses: docker/setup-docker-action@77e84dbf09b47d1e29270283c22f16145aa85ca1 # v5.4.0
+        with:
+          version: latest
+          channel: stable
+          rootless: true
+
+      - name: compile component
+        run: (sudo chmod u+x ./build.sh && ./build.sh)
+      
+        
