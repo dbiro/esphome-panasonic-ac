@@ -5,17 +5,16 @@
 namespace esphome {
 namespace panasonic_ac {
 
-static const char* TAG2 = "panasonic_ac";
+static const char* TAG = "panasonic_ac";
 
-PanasonicACTraitsBuilder::PanasonicACTraitsBuilder(climate::Climate &climate_entity, Component &component)
-    : climate_(climate_entity), component_(component) {
+PanasonicACTraitsBuilder::PanasonicACTraitsBuilder(climate::Climate &climate_entity)
+    : climate_(climate_entity) {
 
 }
 
 void PanasonicACTraitsBuilder::add_horizontal_swing_mode() {
-    // The traits are cached after the first build, so a later change would be silently ignored
     if (this->traits_built_) {
-        this->component_.mark_failed(LOG_STR("Horizontal swing mode added after the traits were built"));
+        ESP_LOGW(TAG, "Horizontal swing mode can not be added after the traits were built!");
         return;
     }
 
@@ -26,9 +25,8 @@ void PanasonicACTraitsBuilder::add_horizontal_swing_mode() {
 }
 
 void PanasonicACTraitsBuilder::add_vertical_swing_mode() {
-    // The traits are cached after the first build, so a later change would be silently ignored
     if (this->traits_built_) {
-        this->component_.mark_failed(LOG_STR("Vertical swing mode added after the traits were built"));
+        ESP_LOGW(TAG, "Vertical swing mode can not be added after the traits were built!");
         return;
     }
 
@@ -87,9 +85,6 @@ void PanasonicACTraitsBuilder::populate_traits_() {
         FAN_SPEED_LEVEL_4,
         FAN_SPEED_LEVEL_5,
     });
-
-    ESP_LOGD(TAG2, "Climate traits are populated");
-    ESP_LOGI(TAG2, "Climate traits are populated");
 }
 
 }

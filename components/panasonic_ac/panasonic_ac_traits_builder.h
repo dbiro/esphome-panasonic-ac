@@ -2,7 +2,6 @@
 
 #include "esphome/components/climate/climate.h"
 #include "esphome/components/climate/climate_traits.h"
-#include "esphome/core/component.h"
 
 namespace esphome {
 namespace panasonic_ac {
@@ -26,7 +25,7 @@ static constexpr const char *PRESET_POWERFUL = "Powerful";
 
 class PanasonicACTraitsBuilder {
     public:
-        PanasonicACTraitsBuilder(climate::Climate &climate_entity, Component &component);
+        explicit PanasonicACTraitsBuilder(climate::Climate &climate_entity);
         // Builds the traits on first call, returns the cached result afterwards
         const climate::ClimateTraits &build_traits();
         void add_horizontal_swing_mode();
@@ -35,7 +34,6 @@ class PanasonicACTraitsBuilder {
         void populate_traits_();
 
         climate::Climate &climate_;
-        Component &component_;  // Same object as climate_, used to fail the component on misuse
         climate::ClimateTraits traits = climate::ClimateTraits();
         bool traits_built_ = false;
 };
