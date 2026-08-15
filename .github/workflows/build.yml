@@ -21,9 +21,10 @@ jobs:
         id: create_cache_key
         run: |
           source ./.esphomeversion
+          sudo chmod u+x ./config-hash.sh
 
           esphomeVersion="${ESPHOME_VERSION}"
-          esphomeConfigHash="$(bash ./config-hash.sh)"
+          esphomeConfigHash="$(./config-hash.sh)"
 
           echo "cache_key=${{ runner.os }}-esphome-${esphomeVersion}-config-${esphomeConfigHash}" >> ${GITHUB_OUTPUT}
 
@@ -38,7 +39,9 @@ jobs:
 
       - name: compile component        
         id: compile_component_step
-        run: bash ./build.sh
+        run: |
+          sudo chmod u+x ./build.sh
+          bash ./build.sh
 
       - name: set commit status
         if: ${{ always() && contains(fromJSON('["success", "failure"]'), steps.compile_component_step.conclusion) }}
