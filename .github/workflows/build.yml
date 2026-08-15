@@ -28,7 +28,8 @@ jobs:
           esphomeVersion="${ESPHOME_VERSION}"
           esphomeConfigHash="$(bash ./config-hash.sh)"
 
-          echo "cache_key=${{ runner.os }}-esphome-${esphomeVersion}-config-${esphomeConfigHash}" >> "${GITHUB_OUTPUT}"
+          echo "cache_key=${RUNNER_OS}-esphome-${esphomeVersion}-config-${esphomeConfigHash}"
+          echo "cache_key=${RUNNER_OS}-esphome-${esphomeVersion}-config-${esphomeConfigHash}" >> "${GITHUB_OUTPUT}"
 
       - name: initialize esphome cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5.1.0
