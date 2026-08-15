@@ -19,23 +19,25 @@ jobs:
 
       - name: create dummy secrets.yaml file
         run: touch ./secrets.yaml && cp ./ac.example.secrets.yaml ./secrets.yaml
+      
+      # TODO: esphome container runs as root
+      # gh-issue: https://github.com/esphome/issues/issues/3558
+      # - name: create esphome cache key
+      #   id: create_cache_key
+      #   run: |
+      #     source ./.esphomeversion
 
-      - name: create esphome cache key
-        id: create_cache_key
-        run: |
-          source ./.esphomeversion
+      #     esphomeVersion="${ESPHOME_VERSION}"
+      #     esphomeConfigHash="$(bash ./config-hash.sh)"
 
-          esphomeVersion="${ESPHOME_VERSION}"
-          esphomeConfigHash="$(bash ./config-hash.sh)"
+      #     echo "cache_key=${RUNNER_OS}-esphome-${esphomeVersion}-config-${esphomeConfigHash}"
+      #     echo "cache_key=${RUNNER_OS}-esphome-${esphomeVersion}-config-${esphomeConfigHash}" >> "${GITHUB_OUTPUT}"
 
-          echo "cache_key=${RUNNER_OS}-esphome-${esphomeVersion}-config-${esphomeConfigHash}"
-          echo "cache_key=${RUNNER_OS}-esphome-${esphomeVersion}-config-${esphomeConfigHash}" >> "${GITHUB_OUTPUT}"
-
-      - name: initialize esphome cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5.1.0
-        with:
-          path: ./.esphome
-          key: ${{ steps.create_cache_key.outputs.cache_key }}
+      # - name: initialize esphome cache
+      #   uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5.1.0
+      #   with:
+      #     path: ./.esphome
+      #     key: ${{ steps.create_cache_key.outputs.cache_key }}
 
       - name: compile component        
         id: compile_component_step
