@@ -17,13 +17,16 @@ jobs:
       - name: checkout master branch
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-      - name: initialize platformio cache
+      - name: initialize esphome cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5.1.0
         with:
-          path: ./.esphome/platformio/cache
-          key: ${{ runner.os }}-panasonic_ac-platformio-${{ hashFiles('./.esphomeversion') }}
-          restore-keys: |
-            ${{ runner.os }}-panasonic_ac-platformio-
+          path: |
+            ./.esphome/build
+            ./.esphome/idedata
+            ./.esphome/pio_components
+            ./.esphome/platformio/cache            
+          key: ${{ runner.os }}-panasonic_ac-esphome-${{ hashFiles('./.esphomeversion') }}
+          restore-keys: ${{ runner.os }}-panasonic_ac-esphome-
         
       - name: create dummy secrets.yaml file
         run: touch ./secrets.yaml && cp ./ac.example.secrets.yaml ./secrets.yaml
