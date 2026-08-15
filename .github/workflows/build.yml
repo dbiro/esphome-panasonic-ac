@@ -17,32 +17,28 @@ jobs:
       - name: checkout master branch
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
+      - name: create dummy secrets.yaml file
+        run: touch ./secrets.yaml && cp ./ac.example.secrets.yaml ./secrets.yaml
+
       - name: create esphome cache key
         id: create_cache_key
         run: |
           source ./.esphomeversion
-          sudo chmod u+x ./config-hash.sh
 
           esphomeVersion="${ESPHOME_VERSION}"
-          # esphomeConfigHash="$(./config-hash.sh)"
-          ./config-hash.sh
+          esphomeConfigHash="$(bash ./config-hash.sh)"
 
-          # echo "cache_key=${{ runner.os }}-esphome-${esphomeVersion}-config-${esphomeConfigHash}" >> ${GITHUB_OUTPUT}
+          echo "cache_key=${{ runner.os }}-esphome-${esphomeVersion}-config-${esphomeConfigHash}" >> ${GITHUB_OUTPUT}
 
       - name: initialize esphome cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5.1.0
         with:
           path: ./.esphome
           key: ${{ steps.create_cache_key.outputs.cache_key }}
-        
-      - name: create dummy secrets.yaml file
-        run: touch ./secrets.yaml && cp ./ac.example.secrets.yaml ./secrets.yaml
 
       - name: compile component        
         id: compile_component_step
-        run: |
-          sudo chmod u+x ./build.sh
-          bash ./build.sh
+        run: bash ./build.sh
 
       - name: set commit status
         if: ${{ always() && contains(fromJSON('["success", "failure"]'), steps.compile_component_step.conclusion) }}
