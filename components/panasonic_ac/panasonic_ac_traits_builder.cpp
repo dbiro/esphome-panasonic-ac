@@ -91,4 +91,6 @@ void PanasonicACTraitsBuilder::populate_traits_() {
     ESP_LOGD(TAG2, "Climate traits are populated");
     ESP_LOGI(TAG2, "Climate traits are populated");
 }
+
+}
 }
