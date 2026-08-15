@@ -24,7 +24,6 @@ jobs:
           key: ${{ runner.os }}-panasonic_ac-platformio-${{ hashFiles('./.esphomeversion') }}
           restore-keys: |
             ${{ runner.os }}-panasonic_ac-platformio-
-          save-always: false
         
       - name: create dummy secrets.yaml file
         run: touch ./secrets.yaml && cp ./ac.example.secrets.yaml ./secrets.yaml
