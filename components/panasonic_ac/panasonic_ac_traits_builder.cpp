@@ -5,6 +5,8 @@
 namespace esphome {
 namespace panasonic_ac {
 
+static const char* TAG = "panasonic_ac";
+
 PanasonicACTraitsBuilder::PanasonicACTraitsBuilder(climate::Climate &climate_entity, Component &component)
     : climate_(climate_entity), component_(component) {
 
@@ -85,6 +87,8 @@ void PanasonicACTraitsBuilder::populate_traits_() {
         FAN_SPEED_LEVEL_4,
         FAN_SPEED_LEVEL_5,
     });
+
+    ESP_LOGI(TAG, "Climate traits are populated");
 }
 
 }
