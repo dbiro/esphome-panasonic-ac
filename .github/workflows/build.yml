@@ -16,15 +16,19 @@ jobs:
     steps:
       - name: checkout master branch
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: initialize platformio cache
+      - name: Cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5.1.0
+        with:
+          path: ./.esphome/platformio/cache
+          key: ${{ runner.os }}-panasonic_ac-platformio-${{ hashFiles('./.esphomeversion') }}
+          restore-keys: |
+            ${{ runner.os }}-panasonic_ac-platformio-
+          save-always: false
         
       - name: create dummy secrets.yaml file
         run: touch ./secrets.yaml && cp ./ac.example.secrets.yaml ./secrets.yaml
-
-      - name: read .esphomeversion file
-        run: |
-          source ./.esphomeversion
-          echo "ESPHOME_VERSION=${ESPHOME_VERSION}" >> ${GITHUB_ENV}
-          echo "::notice::Built with ESPHome v$ESPHOME_VERSION"
 
       - name: compile component        
         id: compile_component_step
@@ -38,6 +42,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           COMPILE_STATE: ${{ steps.compile_component_step.conclusion }}
         run: |
+           source ./.esphomeversion
+            
            gh api "/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
             -H "Accept: application/vnd.github+json" \
             --method POST \

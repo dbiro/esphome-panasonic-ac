@@ -9,7 +9,7 @@
             "options": {
                 "cwd": "${workspaceFolder}"
             },
-            "command": "cat <(cat ./.esphomeversion) <(echo '') ./build.sh | bash",
+            "command": "./build.sh",
             "problemMatcher": [],
             "group": {
                 "kind": "build",

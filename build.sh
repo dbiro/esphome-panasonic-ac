@@ -1,1 +1,2 @@
-docker run -v "${PWD}":"/config" --rm ghcr.io/esphome/esphome:${ESPHOME_VERSION?} compile ac.example.yaml
+source ./.esphomeversion
+docker run --rm -v "${PWD}":"/config" "ghcr.io/esphome/esphome:${ESPHOME_VERSION?}" compile ac.example.yaml
