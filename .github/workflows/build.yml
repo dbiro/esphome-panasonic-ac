@@ -24,11 +24,15 @@ jobs:
           cache: pip
           cache-dependency-path: requirements.txt
 
-      - name: cache platformio toolchains
+      - name: cache esp-idf toolchain
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5.1.0
         with:
-          path: ~/.platformio
-          key: ${{ runner.os }}-platformio-${{ hashFiles('requirements.txt') }}
+          # esphome installs the idf toolchain here, not in ~/.platformio.
+          # dist/ is only the downloaded tarballs, redundant once extracted.
+          path: |
+            ~/.cache/esphome/idf
+            !~/.cache/esphome/idf/dist
+          key: ${{ runner.os }}-idf-${{ hashFiles('requirements.txt') }}
 
       - name: cache esphome build dir
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5.1.0

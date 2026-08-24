@@ -28,7 +28,7 @@ The ESPHome version lives in **two** places that must be bumped together: `requi
 
 CI (`.github/workflows/build.yml`) creates the same venv from `requirements.txt`, runs `build.sh` on
 pushes to `master`, and posts a commit status labelled with the ESPHome version (read out of
-`requirements.txt`). Two caches: `~/.platformio` (toolchains, keyed on `requirements.txt`) and
+`requirements.txt`). Two caches: `~/.cache/esphome/idf` minus `dist/` (esp-idf toolchain, keyed on `requirements.txt`) and
 `.esphome/` (build objects, keyed on `requirements.txt` + `ac.example.yaml` + `components/**`, with a
 prefix `restore-keys` so an edit still starts from the last incremental build).
 
