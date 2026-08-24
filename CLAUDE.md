@@ -13,22 +13,24 @@ DomiStyle's `esphome-panasonic-ac`.
 There is no test suite. The only verification is that the example config compiles.
 
 ```bash
-./build.sh          # esphome compile ac.example.yaml, in Docker, ESPHome pinned by .esphomeversion
-./config-hash.sh    # esphome config-hash for the same config (used for CI cache keys)
+python3 -m venv .venv && ./.venv/bin/pip install -r requirements.txt   # once
+./build.sh          # esphome compile ac.example.yaml
 ```
 
-Both run `ghcr.io/esphome/esphome:${ESPHOME_VERSION}` with the repo mounted at `/config`, so no local
-ESPHome install is needed. `build.sh` is also wired up as the default VS Code build task.
+`build.sh` calls `./.venv/bin/esphome` directly, so the venv must exist. It is also wired up as the
+default VS Code build task.
 
 `secrets.yaml` is gitignored. If it is missing, copy `ac.example.secrets.yaml` over it (that is exactly
 what `.github/workflows/build.yml` does before compiling).
 
-The ESPHome version lives in **two** places that must be bumped together: `.esphomeversion`
-(`ESPHOME_VERSION=`, used by the Docker tag) and `esphome.min_version` in `ac.example.yaml`.
+The ESPHome version lives in **two** places that must be bumped together: `requirements.txt`
+(`esphome==`) and `esphome.min_version` in `ac.example.yaml`.
 
-CI (`.github/workflows/build.yml`) runs `build.sh` on pushes to `master` and posts a commit status
-labelled with the ESPHome version. Caching of `.esphome/` is currently commented out (esphome container
-runs as root, esphome/issues#3558).
+CI (`.github/workflows/build.yml`) creates the same venv from `requirements.txt`, runs `build.sh` on
+pushes to `master`, and posts a commit status labelled with the ESPHome version (read out of
+`requirements.txt`). Two caches: `~/.platformio` (toolchains, keyed on `requirements.txt`) and
+`.esphome/` (build objects, keyed on `requirements.txt` + `ac.example.yaml` + `components/**`, with a
+prefix `restore-keys` so an edit still starts from the last incremental build).
 
 ## Architecture
 

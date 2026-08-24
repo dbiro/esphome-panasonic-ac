@@ -17,29 +17,33 @@ jobs:
       - name: checkout master branch
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
+      - name: set up python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: cache platformio toolchains
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5.1.0
+        with:
+          path: ~/.platformio
+          key: ${{ runner.os }}-platformio-${{ hashFiles('requirements.txt') }}
+
+      - name: cache esphome build dir
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5.1.0
+        with:
+          path: .esphome
+          key: ${{ runner.os }}-esphome-${{ hashFiles('requirements.txt', 'ac.example.yaml', 'components/**') }}
+          restore-keys: ${{ runner.os }}-esphome-
+
+      - name: create venv
+        run: python -m venv .venv && ./.venv/bin/pip install -q -r requirements.txt
+
       - name: create dummy secrets.yaml file
-        run: touch ./secrets.yaml && cp ./ac.example.secrets.yaml ./secrets.yaml
-      
-      # TODO: esphome container runs as root
-      # gh-issue: https://github.com/esphome/issues/issues/3558
-      # - name: create esphome cache key
-      #   id: create_cache_key
-      #   run: |
-      #     source ./.esphomeversion
+        run: cp ./ac.example.secrets.yaml ./secrets.yaml
 
-      #     esphomeVersion="${ESPHOME_VERSION}"
-      #     esphomeConfigHash="$(bash ./config-hash.sh)"
-
-      #     echo "cache_key=${RUNNER_OS}-esphome-${esphomeVersion}-config-${esphomeConfigHash}"
-      #     echo "cache_key=${RUNNER_OS}-esphome-${esphomeVersion}-config-${esphomeConfigHash}" >> "${GITHUB_OUTPUT}"
-
-      # - name: initialize esphome cache
-      #   uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5.1.0
-      #   with:
-      #     path: ./.esphome
-      #     key: ${{ steps.create_cache_key.outputs.cache_key }}
-
-      - name: compile component        
+      - name: compile component
         id: compile_component_step
         run: bash ./build.sh
 
@@ -49,13 +53,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           COMPILE_STATE: ${{ steps.compile_component_step.conclusion }}
         run: |
-           source ./.esphomeversion
-            
+           ESPHOME_VERSION="$(sed -n 's/^esphome==//p' requirements.txt)"
+
            gh api "/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
             -H "Accept: application/vnd.github+json" \
             --method POST \
             -f state="${COMPILE_STATE}" \
             -f context="build/esphomeversion" \
             -f description="ESPHome v${ESPHOME_VERSION}" \
-            -f target_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"      
-        
+            -f target_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
