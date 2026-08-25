@@ -1,2 +1,2 @@
-# Keep in sync with .esphomeversion and esphome.min_version in ac.example.yaml.
-esphome==2026.7.4
+# Keep in sync with esphome.min_version in ac.example.yaml.
+esphome==2026.8.1
